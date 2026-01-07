@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Ideal Weight Calculator – Professional & Accurate</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+:root{
+  --primary:#2563eb;
+  --bg:#f4f7fb;
+  --card:#ffffff;
+  --radius:16px;
+  --text:#1f2937;
+  --muted:#6b7280;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Inter,system-ui,Arial;
+  background:var(--bg);
+  color:var(--text);
+}
+.container{max-width:1100px;margin:auto;padding:20px}
+.card{
+  background:var(--card);
+  border-radius:var(--radius);
+  padding:28px;
+  box-shadow:0 14px 36px rgba(0,0,0,.08);
+}
+h1{margin:0;color:var(--primary)}
+small{color:var(--muted)}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:20px;
+}
+
+input,select{
+  width:100%;
+  padding:14px;
+  font-size:16px;
+  border-radius:10px;
+  border:1px solid #ddd;
+}
+
+button{
+  width:100%;
+  padding:18px;
+  background:var(--primary);
+  color:#fff;
+  border:none;
+  border-radius:14px;
+  font-size:18px;
+  cursor:pointer;
+}
+
+.error{color:#dc2626;font-weight:600;margin-top:10px}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+}
+td{
+  padding:10px 6px;
+  border-bottom:1px solid #eee;
+}
+
+.highlight{
+  font-weight:700;
+  color:#111;
+}
+
+.info-box{
+  margin-top:18px;
+  padding:16px;
+  border-radius:12px;
+  background:#f1f5f9;
+  font-size:14px;
+  line-height:1.6;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<!-- INPUT CARD -->
+<div class="card">
+<h1>Ideal Weight Calculator</h1>
+<small>Medical formulas · Healthy BMI range · Metric & US units</small>
+<br><br>
+
+<div class="grid">
+  <select id="unit">
+    <option value="metric">Metric (cm / kg)</option>
+    <option value="us">US Units (ft / in / lb)</option>
+  </select>
+
+  <select id="gender">
+    <option value="">Gender</option>
+    <option value="male">Male</option>
+    <option value="female">Female</option>
+  </select>
+
+  <input id="age" type="number" placeholder="Age (18+)">
+  <input id="height" type="number" placeholder="Height">
+</div>
+
+<br>
+<button onclick="calculate()">Calculate Ideal Weight</button>
+<div id="error" class="error"></div>
+</div>
+
+<br>
+
+<!-- RESULT CARD -->
+<div class="card">
+<div id="output">Result = —</div>
+
+<div class="info-box" id="info"></div>
+</div>
+
+</div>
+
+<script>
+function calculate(){
+  error.innerText="";
+
+  let unit = document.getElementById("unit").value;
+  let gender = document.getElementById("gender").value;
+  let age = +document.getElementById("age").value;
+  let height = +document.getElementById("height").value;
+
+  if(!gender || !age || !height){
+    error.innerText="Please fill all required fields.";
+    return;
+  }
+  if(age < 18){
+    error.innerText="This calculator is designed for adults (18+).";
+    return;
+  }
+
+  // Convert height to cm
+  let heightCm = unit === "us" ? height * 2.54 : height;
+
+  if(heightCm < 120 || heightCm > 230){
+    error.innerText="Please enter a valid height.";
+    return;
+  }
+
+  let inchesOver5ft = (heightCm - 152.4) / 2.54;
+
+  // FORMULAS
+  let hamwi = gender==="male"
+    ? 48 + 2.7 * inchesOver5ft
+    : 45.5 + 2.2 * inchesOver5ft;
+
+  let devine = gender==="male"
+    ? 50 + 2.3 * inchesOver5ft
+    : 45.5 + 2.3 * inchesOver5ft;
+
+  let robinson = gender==="male"
+    ? 52 + 1.9 * inchesOver5ft
+    : 49 + 1.7 * inchesOver5ft;
+
+  let miller = gender==="male"
+    ? 56.2 + 1.41 * inchesOver5ft
+    : 53.1 + 1.36 * inchesOver5ft;
+
+  // BMI RANGE
+  let heightM = heightCm / 100;
+  let bmiLow = 18.5 * heightM * heightM;
+  let bmiHigh = 24.9 * heightM * heightM;
+
+  let avgIdeal = (hamwi + devine + robinson + miller) / 4;
+
+  output.innerHTML = `
+  <table>
+    <tr><td>Hamwi Formula</td><td>${hamwi.toFixed(1)} kg</td></tr>
+    <tr><td>Devine Formula</td><td>${devine.toFixed(1)} kg</td></tr>
+    <tr><td>Robinson Formula</td><td>${robinson.toFixed(1)} kg</td></tr>
+    <tr><td>Miller Formula</td><td>${miller.toFixed(1)} kg</td></tr>
+    <tr><td class="highlight">Average Ideal Weight</td><td class="highlight">${avgIdeal.toFixed(1)} kg</td></tr>
+    <tr><td>Healthy BMI Range</td><td>${bmiLow.toFixed(1)} – ${bmiHigh.toFixed(1)} kg</td></tr>
+  </table>
+  `;
+
+  info.innerHTML = `
+  <strong>How to understand this:</strong><br>
+  Ideal weight is an estimate based on height and gender using several medical formulas.
+  Different formulas produce slightly different results, so a healthy range is more important
+  than a single number.
+  <br><br>
+  <strong>Important:</strong> Muscle mass, body composition, age, and health conditions can
+  affect what is healthy for you. Always consider professional medical advice.
+  `;
+}
+</script>
+</body>
+</html>
